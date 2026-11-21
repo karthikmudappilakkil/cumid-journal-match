@@ -1,90 +1,94 @@
-# CUMID Diary Finder — Sensory Recommendation Micro-Experience
+# CUMID Diary Finder — Sensory Diary Discovery Experience
 
-An interactive, production-quality frontend discovery experience for **CUMID**, an artisanal ecommerce brand specializing in diaries and fine stationery.
+An interactive frontend prototype for **CUMID**, a diary and fine-stationery concept. The experience helps users explore diary concepts through a four-step sensory discovery quiz based on mood, writing purpose, aesthetic preferences, and colour palette.
+
+CUMID Diary Finder uses a transparent weighted recommendation engine to suggest diary design concepts based on the preferences users select. Product materials, dimensions, paper specifications, and binding details represent proposed design targets and development benchmarks, not verified or commercially available products.
 
 ---
 
 ## ✦ Key Features
 
-1. **Editorial Landing Experience**:
-   - Hero headline *"Find Your Perfect Diary"* with editorial typography and Cormorant Garamond serif styling.
-   - Narrative value pillars: 120+ GSM paper benchmark target for fountain pens, ritual calibration, and proposed 180° Smyth-sewn lay-flat binding concept.
-   - Interactive preview of specimen diary concepts.
-   - Intuitive *"Start Exploring"* discovery entry point.
+1. **Editorial Landing Experience**
+   - Editorial hero: *“Find Your Perfect Diary”*, with Cormorant Garamond typography.
+   - Concept preview featuring proposed paper and binding benchmarks.
+   - Clear *“Start Exploring”* entry point.
 
-2. **Four-Step Personality & Sensory Quiz**:
-   - **Step 1 — Current Mood**: Reflective & Quiet, Energetic & Driven, Creative & Whimsical, Overwhelmed & Seeking Order.
-   - **Step 2 — Purpose & Ritual**: Daily Reflection & Mindful Gratitude, Bullet Journaling & Habits, Creative Writing & Poetry, Professional Planning & Strategy.
-   - **Step 3 — Aesthetic Temperament**: Minimalist & Pure, Vintage European & Antiquarian, Botanical & Earthy, Playful & Contemporary Pastel.
-   - **Step 4 — Color Palette**: Sage & Whispering Forest, Muted Lavender & Twilight Dusk, Warm Almond & Honeyed Cream, Terracotta & Sunbaked Clay with live dual-tone swatches.
+2. **Four-Step Sensory Discovery Quiz**
+   - **Step 1 — Current Mood:** Reflective & Quiet, Energetic & Driven, Creative & Whimsical, Overwhelmed & Seeking Order.
+   - **Step 2 — Purpose & Ritual:** Daily Reflection & Mindful Gratitude, Bullet Journaling & Habits, Creative Writing & Poetry, Professional Planning & Strategy.
+   - **Step 3 — Aesthetic Temperament:** Minimalist & Pure, Vintage European & Antiquarian, Botanical & Earthy, Playful & Contemporary Pastel.
+   - **Step 4 — Colour Palette:** Sage & Whispering Forest, Muted Lavender & Twilight Dusk, Warm Almond & Honeyed Cream, Terracotta & Sunbaked Clay.
 
-3. **Smooth Interaction & Accessibility**:
-   - Multi-step progress bar with step indicators, progress percentages, and backward navigation.
-   - Fully accessible: `role="radio"`, `aria-checked`, keyboard Enter/Space selection, and focus-visible rings.
-   - Smooth animated slide & fade transitions powered by **Framer Motion**.
-   - Delightful 1.2s transitional calculating animation simulating bespoke atelier curation.
+3. **Interaction & Accessibility Features**
+   - Four-step progress indicator and backward navigation.
+   - Radio-group semantics, selected-state announcements, keyboard selection, and visible focus styling.
+   - Animated transitions powered by **Framer Motion**.
+   - A short recommendation-calculation transition.
 
-4. **Transparent Weighted Recommendation Engine**:
-   - Transparent, genuine scoring based on explicit matching weights:
-     - **Palette**: 35%
-     - **Purpose**: 30%
-     - **Mood**: 20%
-     - **Aesthetic**: 15%
-   - Match strength tiers: Strong (≥70%), Moderate (≥35%), Weak (>0%), and Exploratory Specimen (0%).
-   - Incomplete and partial answers are explicitly handled without falling back to artificial default answers.
-   - Deterministic tie-breaking ensures consistent results across identical answers.
-   - Celebratory confetti burst when genuine match affinity reaches 50% or higher.
-   - Dynamic 3D tactile book illustration reflecting the diary concept's exact color profile, ribbon bookmarks, debossed insignia, and page gilding.
-   - Deep-dive *"Why This Matches Your Mind"* explanation and 4-part ritual harmony breakdown.
-   - Technical specifications grid (paper weight benchmarks, page count, ruling, binding, cover finish, dimensions).
-   - Interactive **View Diary Details** modal showing development benchmarks and concept specifications.
-   - **Share & Copy** match summary to clipboard.
-   - **Alternative Companion Journal** recommendation with clean thumbnail preview.
-   - Clean **Retake Quiz** flow returning to the initial state.
+4. **Weighted Recommendation Engine**
+   - Scores preferences using these weights:
+     - **Palette:** 35%
+     - **Purpose:** 30%
+     - **Mood:** 20%
+     - **Aesthetic:** 15%
+   - Match tiers: Strong (≥70%), Moderate (≥35% and <70%), Weak (>0% and <35%), and Exploratory (0%).
+   - Handles incomplete answers without substituting unselected defaults.
+   - Uses deterministic tie-breaking for repeatable results.
+   - Provides match explanations, a four-part preference breakdown, and an alternative diary concept.
+   - Shows a concept illustration and a **View Diary Details** modal.
+   - Offers copy/share of the recommendation summary and a retake-quiz flow.
+
+5. **Concept Catalogue Transparency**
+   - Diary entries are design concepts, not confirmed retail products.
+   - Paper weights, dimensions, materials, binding, and sustainability details are proposed targets or development benchmarks.
+   - The project does not claim live stock, retail prices, purchase availability, or verified certifications.
 
 ---
 
-## ✦ Architectural Structure
+## ✦ Project Structure
 
 ```
 cumid-diary-finder/
 ├── src/
 │   ├── components/
-│   │   ├── CalculatingScreen.tsx     # Bespoke analysis transition animation
-│   │   ├── DiaryIllustration.tsx     # Tactile 3D book cover & ribbon renderer
-│   │   ├── Header.tsx                # Editorial header with CUMID branding & reset
-│   │   ├── IconHelper.tsx            # Dynamic Lucide icon mapping
-│   │   ├── LandingScreen.tsx         # Hero discovery landing screen
-│   │   ├── ProductDetailModal.tsx    # Diary details & specifications modal
-│   │   ├── ProgressBar.tsx           # Multi-step progress bar with Back navigation
-│   │   ├── QuizCard.tsx              # Selectable interactive cards with swatches & tags
-│   │   └── ResultsScreen.tsx         # Recommendation results with breakdown & confetti
+│   │   ├── CalculatingScreen.tsx
+│   │   ├── DiaryIllustration.tsx
+│   │   ├── Header.tsx
+│   │   ├── IconHelper.tsx
+│   │   ├── LandingScreen.tsx
+│   │   ├── ProductDetailModal.tsx
+│   │   ├── ProgressBar.tsx
+│   │   ├── QuizCard.tsx
+│   │   └── ResultsScreen.tsx
 │   ├── data/
-│   │   ├── products.ts               # SINGLE SOURCE OF TRUTH for diary concept catalogue
-│   │   └── quizData.ts               # 4-question discovery flow configuration
+│   │   ├── products.ts
+│   │   └── quizData.ts
 │   ├── types/
-│   │   └── index.ts                  # TypeScript definitions for quiz, models & results
+│   │   └── index.ts
 │   ├── utils/
-│   │   └── recommendationEngine.ts   # Weighted affinity algorithm and insight generator
-│   ├── App.tsx                       # Main application state orchestrator
-│   ├── index.css                     # Tailwind CSS and editorial typography
-│   └── main.tsx                      # Application mount
+│   │   ├── clipboard.ts
+│   │   └── recommendationEngine.ts
+│   ├── App.tsx
+│   ├── index.css
+│   └── main.tsx
 ├── scripts/
-│   └── pre-deployment-audit.mjs      # Comprehensive runtime QA audit runner
-├── tailwind.config.js                # Custom palette (cream, sage, lavender, terracotta)
-├── vite.config.ts                    # Vite 6 configuration
+│   └── pre-deployment-audit.mjs
+├── tailwind.config.js
+├── vite.config.ts
 └── package.json
 ```
 
 ---
 
-## ✦ Catalogue Configuration (For CUMID Product Team)
+## ✦ Catalogue Configuration
 
-No fabricated retail prices, fake stock availability, or unverified claims are hardcoded into components. All product concepts live in:
+The diary concept catalogue and matching profiles are maintained in:
 
 [src/data/products.ts](src/data/products.ts)
 
-When official CUMID SKU codes, prices, and direct store URLs go live, update the entries in `DIARY_CATALOGUE`:
+When CUMID's actual products are finalized, update the corresponding catalogue entries with verified specifications and approved product information. Do not treat the example values below as confirmed product specifications.
+
+Example concept entry:
 
 ```typescript
 {
@@ -96,10 +100,10 @@ When official CUMID SKU codes, prices, and direct store URLs go live, update the
     paperWeight: '120 gsm target (acid-free benchmark)',
     pages: 192,
     rulingType: '5mm subtle dotted grid',
-    coverMaterial: 'Woven tactile linen style',
-    dimensions: 'A5 (148 x 210 mm / 5.8 x 8.3 in)',
-    binding: '180° lay-flat Smyth-sewn format',
-    sustainabilityTarget: 'Target: Responsibly sourced paper (Lab audit pending)',
+    coverMaterial: 'Woven tactile linen style (proposed)',
+    dimensions: 'A5 concept format (148 x 210 mm)',
+    binding: 'Proposed 180° lay-flat Smyth-sewn format',
+    sustainabilityTarget: 'Responsibly sourced paper target (verification pending)',
   },
   matchingProfile: {
     moods: ['reflective', 'seeking-order'],
@@ -114,16 +118,34 @@ When official CUMID SKU codes, prices, and direct store URLs go live, update the
 
 ## ✦ Development & Testing
 
+### Requirements
+
+- Node.js and npm.
+- Install project dependencies before running the commands below.
+
+### Commands
+
 ```bash
-# Run development server
+# Install dependencies
+npm install
+
+# Start the local development server
 npm run dev
 
-# Run production build (TypeScript + Vite)
+# Create the TypeScript-checked production build
 npm run build
 
-# Run automated pre-deployment QA audit
+# Run the automated pre-deployment audit
 npm test
 
-# Preview production build
+# Preview the production build locally
 npm run preview
 ```
+
+**Important:** Run `npm run build` before `npm test`. The audit checks the generated `dist/` build artifacts as well as executing recommendation-engine tests and performing source-code inspections. Its static checks do not replace interactive browser testing, manual accessibility review, or testing on real mobile and desktop devices.
+
+---
+
+## ✦ Current Project Scope
+
+CUMID Diary Finder is currently a frontend discovery prototype. It does not include a live checkout, payment processing, inventory management, order fulfilment, or verified commercial product catalogue. These capabilities should only be described as available after they have been implemented and tested.
