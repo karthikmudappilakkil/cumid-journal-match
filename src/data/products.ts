@@ -24,7 +24,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
     isArchetypeModel: true,
     catalogueNotice: PROTOTYPE_CATALOGUE_NOTICE,
     description:
-      'Engineered with a tactile woven linen cover design in soothing sage green. Conceptually paired with 120gsm paper targeted for smooth ink laydown without significant ghosting.',
+      'Designed with a tactile woven linen cover styling in soothing sage green. Conceptually paired with 120gsm paper targeted to balance smooth ink laydown and paper show-through.',
     whyThisMatches:
       'Your desire for calm reflection and organic botanical tones matches with this restorative linen-bound concept archetype.',
     specs: {
@@ -70,7 +70,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
       rulingType: 'Blank with faint bottom page numbers',
       coverMaterial: 'Soft-touch matte finish',
       dimensions: 'B5 Slim (176 x 250 mm / 6.9 x 9.8 in)',
-      binding: 'Archival Smyth-sewn format',
+      binding: 'Traditional Smyth-sewn lay-flat format',
       sustainabilityTarget: 'Target: Recycled fiber content (Lab audit pending)',
     },
     coverColorClass: 'bg-lavender-100 border-lavender-300 text-lavender-900',
@@ -85,7 +85,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
       palettes: ['muted-lavender'],
     },
     featuredHighlights: [
-      'Hot-pressed ivory leaf specifications calibrated for dip and fountain pens',
+      'Hot-pressed ivory leaf specifications selected as a benchmark for dip and fountain pens',
       'Gilded edge detailing designed to catch warm bedside illumination',
       'Accompanied by a 16-page creative prompt and mood insert format',
     ],
@@ -100,7 +100,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
     description:
       'Inspired by vintage library archives, featuring an unbleached oatmeal buckram cloth binding concept with debossed typography.',
     whyThisMatches:
-      'Your preference for timeless vintage European aesthetics and honeyed cream hues harmonizes with this archive-grade heirloom concept.',
+      'Your preference for timeless vintage European aesthetics and honeyed cream hues harmonizes with this library-inspired heirloom concept.',
     specs: {
       paperWeight: '115 gsm target (milled cotton byproduct benchmark)',
       pages: 224,
@@ -123,7 +123,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
     },
     featuredHighlights: [
       'Reinforced buckram cloth spine architecture designed for long-term desk durability',
-      'Acid-free paper formulation targeted to prevent yellowing over time',
+      'Acid-free paper formulation selected as a longevity benchmark',
       'Blind-embossed spine area for volume numbering and personal archival',
     ],
   },
@@ -196,7 +196,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
       palettes: ['warm-cream', 'sage-forest'],
     },
     featuredHighlights: [
-      'Heavy 140gsm weight designed to resist bleed from water-based brush pens',
+      '140gsm weight targeted for mixed-media and brush ink experimentation',
       'Square layout providing spacious lateral thinking room on tabletops',
       'Lay-flat Swiss binding allowing panoramic double-page spread work',
     ],

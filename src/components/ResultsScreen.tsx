@@ -56,10 +56,34 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
     secondaryDiary,
     matchScore,
     secondaryMatchScore,
+    matchStrength = 'moderate',
     matchReasons,
     matchedCriteria,
     userSelections,
   } = recommendation;
+
+  const strengthLabels = {
+    strong: {
+      badge: 'IDEAL COMPANION',
+      subHeader: 'Bespoke Recommendation Calibrated',
+      insightTitle: 'Why This Matches Your Mind',
+    },
+    moderate: {
+      badge: 'RECOMMENDED CONCEPT',
+      subHeader: 'Curated Concept Match',
+      insightTitle: 'Why This Matches Your Ritual',
+    },
+    weak: {
+      badge: 'PRELIMINARY MATCH',
+      subHeader: 'Partial Concept Match',
+      insightTitle: 'Partial Alignment Analysis',
+    },
+    exploratory: {
+      badge: 'EXPLORATORY SPECIMEN',
+      subHeader: 'Exploratory Concept Profile',
+      insightTitle: 'Concept Overview & Profile',
+    },
+  }[matchStrength];
 
   // Trigger celebratory confetti on mount if genuine match >= 50%
   useEffect(() => {
@@ -99,7 +123,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             <span className="relative inline-flex rounded-full h-3 w-3 bg-sage-600" />
           </span>
           <span className="text-xs font-mono uppercase tracking-widest text-stone-600 font-semibold">
-            Bespoke Recommendation Calibrated
+            {strengthLabels.subHeader}
           </span>
         </div>
 
@@ -148,7 +172,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             </div>
 
             <div className="absolute top-5 right-5 text-[10px] font-mono uppercase tracking-wider text-stone-400">
-              IDEAL COMPANION
+              {strengthLabels.badge}
             </div>
 
             <div className="my-6">
@@ -200,7 +224,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           <div className="w-full p-4 sm:p-5 rounded-2xl bg-white/80 border border-cream-300 shadow-soft-sm mb-6">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-700 flex items-center gap-1.5 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-sage-600" />
-              <span>Why This Matches Your Mind</span>
+              <span>{strengthLabels.insightTitle}</span>
             </h4>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
               {primaryDiary.whyThisMatches}
@@ -250,13 +274,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
                 <span>01 • Mood (20%)</span>
-                <IconHelper name={userSelections.mood.iconName} className="w-4 h-4 text-sage-600" />
+                {userSelections.mood ? (
+                  <IconHelper name={userSelections.mood.iconName} className="w-4 h-4 text-sage-600" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-stone-400" />
+                )}
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
-                {userSelections.mood.label}
+                {userSelections.mood ? userSelections.mood.label : 'Not Specified'}
               </h4>
               <p className="text-xs text-stone-500 leading-relaxed mb-3">
-                {userSelections.mood.subtitle}
+                {userSelections.mood ? userSelections.mood.subtitle : 'Skipped or omitted during quiz'}
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
@@ -267,7 +295,9 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                     <Check className="w-3 h-3" /> Matched (+20%)
                   </span>
                 ) : (
-                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                  <span className="text-[10px] text-stone-400 font-mono">
+                    {userSelections.mood ? 'Partial' : 'Omitted (0%)'}
+                  </span>
                 )}
               </div>
               <p className="leading-snug">{matchReasons.moodInsight}</p>
@@ -279,13 +309,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
                 <span>02 • Purpose (30%)</span>
-                <IconHelper name={userSelections.purpose.iconName} className="w-4 h-4 text-sage-600" />
+                {userSelections.purpose ? (
+                  <IconHelper name={userSelections.purpose.iconName} className="w-4 h-4 text-sage-600" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-stone-400" />
+                )}
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
-                {userSelections.purpose.label}
+                {userSelections.purpose ? userSelections.purpose.label : 'Not Specified'}
               </h4>
               <p className="text-xs text-stone-500 leading-relaxed mb-3">
-                {userSelections.purpose.subtitle}
+                {userSelections.purpose ? userSelections.purpose.subtitle : 'Skipped or omitted during quiz'}
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
@@ -296,7 +330,9 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                     <Check className="w-3 h-3" /> Matched (+30%)
                   </span>
                 ) : (
-                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                  <span className="text-[10px] text-stone-400 font-mono">
+                    {userSelections.purpose ? 'Partial' : 'Omitted (0%)'}
+                  </span>
                 )}
               </div>
               <p className="leading-snug">{matchReasons.purposeInsight}</p>
@@ -308,13 +344,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
                 <span>03 • Aesthetic (15%)</span>
-                <IconHelper name={userSelections.aesthetic.iconName} className="w-4 h-4 text-sage-600" />
+                {userSelections.aesthetic ? (
+                  <IconHelper name={userSelections.aesthetic.iconName} className="w-4 h-4 text-sage-600" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-stone-400" />
+                )}
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
-                {userSelections.aesthetic.label}
+                {userSelections.aesthetic ? userSelections.aesthetic.label : 'Not Specified'}
               </h4>
               <p className="text-xs text-stone-500 leading-relaxed mb-3">
-                {userSelections.aesthetic.subtitle}
+                {userSelections.aesthetic ? userSelections.aesthetic.subtitle : 'Skipped or omitted during quiz'}
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
@@ -325,7 +365,9 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                     <Check className="w-3 h-3" /> Matched (+15%)
                   </span>
                 ) : (
-                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                  <span className="text-[10px] text-stone-400 font-mono">
+                    {userSelections.aesthetic ? 'Partial' : 'Omitted (0%)'}
+                  </span>
                 )}
               </div>
               <p className="leading-snug">{matchReasons.aestheticInsight}</p>
@@ -339,14 +381,14 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                 <span>04 • Palette (35%)</span>
                 <span
                   className="w-4 h-4 rounded-full border border-black/10 inline-block"
-                  style={{ backgroundColor: userSelections.palette.colorSwatch?.primary || '#729772' }}
+                  style={{ backgroundColor: userSelections.palette?.colorSwatch?.primary || '#729772' }}
                 />
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
-                {userSelections.palette.label}
+                {userSelections.palette ? userSelections.palette.label : 'Not Specified'}
               </h4>
               <p className="text-xs text-stone-500 leading-relaxed mb-3">
-                {userSelections.palette.subtitle}
+                {userSelections.palette ? userSelections.palette.subtitle : 'Skipped or omitted during quiz'}
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
@@ -357,7 +399,9 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                     <Check className="w-3 h-3" /> Matched (+35%)
                   </span>
                 ) : (
-                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                  <span className="text-[10px] text-stone-400 font-mono">
+                    {userSelections.palette ? 'Partial' : 'Omitted (0%)'}
+                  </span>
                 )}
               </div>
               <p className="leading-snug">{matchReasons.paletteInsight}</p>
@@ -370,8 +414,8 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
       {secondaryDiary && secondaryDiary.id !== primaryDiary.id && (
         <div className="p-6 sm:p-8 rounded-3xl bg-white/60 border border-cream-300 shadow-soft-md">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 sm:gap-5">
-              <div className="shrink-0 flex items-center justify-center">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="shrink-0 w-20 flex items-center justify-center">
                 <DiaryIllustration product={secondaryDiary} size="xs" />
               </div>
               <div>

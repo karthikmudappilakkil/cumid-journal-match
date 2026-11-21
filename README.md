@@ -9,7 +9,7 @@ An interactive, production-quality frontend discovery experience for **CUMID**, 
 1. **Editorial Landing Experience**:
    - Hero headline *"Find Your Perfect Diary"* with editorial typography and Cormorant Garamond serif styling.
    - Narrative value pillars: 120+ GSM fountain-pen friendly paper, ritual calibration, and 180° Smyth-sewn lay-flat binding.
-   - Interactive preview of the specimen diary archetype.
+   - Interactive preview of specimen diary concepts.
    - Intuitive *"Start Exploring"* discovery entry point.
 
 2. **Four-Step Personality & Sensory Quiz**:
@@ -24,15 +24,22 @@ An interactive, production-quality frontend discovery experience for **CUMID**, 
    - Smooth animated slide & fade transitions powered by **Framer Motion**.
    - Delightful 1.2s transitional calculating animation simulating bespoke atelier curation.
 
-4. **Premium Results Experience**:
-   - Celebratory confetti burst upon uncovering the match.
-   - 3D tactile book spine & cover specimen illustration reflecting the journal's exact color profile, ribbon bookmarks, and debossed atelier insignia.
-   - High-affinity match score badge (92% - 99%).
+4. **Transparent Weighted Recommendation Engine**:
+   - Transparent, genuine scoring based on explicit matching weights:
+     - **Palette**: 35%
+     - **Purpose**: 30%
+     - **Mood**: 20%
+     - **Aesthetic**: 15%
+   - Match strength tiers: Strong (≥70%), Moderate (≥35%), Weak (>0%), and Exploratory Specimen (0%).
+   - Incomplete and partial answers are explicitly handled without falling back to artificial default answers.
+   - Deterministic tie-breaking ensures consistent results across identical answers.
+   - Celebratory confetti burst when genuine match affinity reaches 50% or higher.
+   - Dynamic 3D tactile book illustration reflecting the diary concept's exact color profile, ribbon bookmarks, debossed insignia, and page gilding.
    - Deep-dive *"Why This Matches Your Mind"* explanation and 4-part ritual harmony breakdown.
-   - Technical specifications grid (paper weight, page count, ruling, binding, cover finish, dimensions).
-   - Interactive **Shop Now** modal showing stock readiness, Small-batch Atelier craft note, and one-click reserve interaction.
+   - Technical specifications grid (paper weight benchmarks, page count, ruling, binding, cover finish, dimensions).
+   - Interactive **View Diary Details** modal showing development benchmarks and concept specifications.
    - **Share & Copy** match summary to clipboard.
-   - **Alternative Companion Journal** recommendation with quick inspection.
+   - **Alternative Companion Journal** recommendation with clean thumbnail preview.
    - Clean **Retake Quiz** flow returning to the initial state.
 
 ---
@@ -48,12 +55,12 @@ cumid-diary-finder/
 │   │   ├── Header.tsx                # Editorial header with CUMID branding & reset
 │   │   ├── IconHelper.tsx            # Dynamic Lucide icon mapping
 │   │   ├── LandingScreen.tsx         # Hero discovery landing screen
-│   │   ├── ProductDetailModal.tsx    # "Shop Now" / specifications sheet modal
+│   │   ├── ProductDetailModal.tsx    # Diary details & specifications modal
 │   │   ├── ProgressBar.tsx           # Multi-step progress bar with Back navigation
 │   │   ├── QuizCard.tsx              # Selectable interactive cards with swatches & tags
 │   │   └── ResultsScreen.tsx         # Recommendation results with breakdown & confetti
 │   ├── data/
-│   │   ├── products.ts               # SINGLE SOURCE OF TRUTH for diary catalogue
+│   │   ├── products.ts               # SINGLE SOURCE OF TRUTH for diary concept catalogue
 │   │   └── quizData.ts               # 4-question discovery flow configuration
 │   ├── types/
 │   │   └── index.ts                  # TypeScript definitions for quiz, models & results
@@ -62,6 +69,8 @@ cumid-diary-finder/
 │   ├── App.tsx                       # Main application state orchestrator
 │   ├── index.css                     # Tailwind CSS and editorial typography
 │   └── main.tsx                      # Application mount
+├── scripts/
+│   └── pre-deployment-audit.mjs      # Comprehensive runtime QA audit runner
 ├── tailwind.config.js                # Custom palette (cream, sage, lavender, terracotta)
 ├── vite.config.ts                    # Vite 6 configuration
 └── package.json
@@ -71,26 +80,26 @@ cumid-diary-finder/
 
 ## ✦ Catalogue Configuration (For CUMID Product Team)
 
-As per requirements, no fake live prices or broken store URLs are hardcoded into components. All product models live in:
+No fabricated retail prices, fake stock availability, or unverified claims are hardcoded into components. All product concepts live in:
 
-[src/data/products.ts](file:///Users/karthikmp/Documents/Projects/CUMID/src/data/products.ts)
+[src/data/products.ts](src/data/products.ts)
 
-When official CUMID SKU codes, prices, and direct store URLs go live, simply update the entries in `DIARY_CATALOGUE`:
+When official CUMID SKU codes, prices, and direct store URLs go live, update the entries in `DIARY_CATALOGUE`:
 
 ```typescript
 {
   id: 'cumid-botanical-sage',
-  name: 'The Botanical Meadow Journal',
-  tagline: 'Quiet companion for mindful reflections and nature observations',
-  collection: 'Flora & Solitude Edition',
+  name: 'The Botanical Meadow Journal (Concept)',
+  tagline: 'Quiet companion concept for mindful reflections and nature observations',
+  collection: 'Flora & Solitude Concept Edition',
   specs: {
-    paperWeight: '120 gsm ultra-smooth acid-free',
+    paperWeight: '120 gsm target (acid-free benchmark)',
     pages: 192,
     rulingType: '5mm subtle dotted grid',
-    coverMaterial: 'Belgian woven tactile linen',
+    coverMaterial: 'Woven tactile linen style',
     dimensions: 'A5 (148 x 210 mm / 5.8 x 8.3 in)',
-    binding: '180° lay-flat Smyth sewn',
-    sustainability: 'FSC-certified & chlorine-free',
+    binding: '180° lay-flat Smyth-sewn format',
+    sustainabilityTarget: 'Target: Responsibly sourced paper (Lab audit pending)',
   },
   matchingProfile: {
     moods: ['reflective', 'seeking-order'],
@@ -98,13 +107,12 @@ When official CUMID SKU codes, prices, and direct store URLs go live, simply upd
     aesthetics: ['botanical-natural', 'minimalist-pure'],
     palettes: ['sage-forest'],
   },
-  // Add live retail price & direct store URL here when available
 }
 ```
 
 ---
 
-## ✦ Development & Build
+## ✦ Development & Testing
 
 ```bash
 # Run development server
@@ -112,6 +120,9 @@ npm run dev
 
 # Run production build (TypeScript + Vite)
 npm run build
+
+# Run automated pre-deployment QA audit
+npm test
 
 # Preview production build
 npm run preview

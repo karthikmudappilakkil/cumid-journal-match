@@ -58,7 +58,7 @@ export const DiaryIllustration: React.FC<DiaryIllustrationProps> = ({
               CUMID
             </span>
             <span className="text-[9px] font-editorial text-white/95 font-medium leading-tight block line-clamp-1">
-              {product.name.replace(' (Archetype)', '')}
+              {product.name.replace(/\s*\((Concept|Archetype)\)/g, '')}
             </span>
           </div>
 
@@ -162,7 +162,7 @@ export const DiaryIllustration: React.FC<DiaryIllustrationProps> = ({
                 isSmall ? 'text-lg sm:text-xl' : 'text-2xl md:text-3xl'
               } text-white font-medium leading-tight mt-1 drop-shadow-sm`}
             >
-              {product.name.replace(' (Archetype)', '')}
+              {product.name.replace(/\s*\((Concept|Archetype)\)/g, '')}
             </h4>
           </div>
         </div>

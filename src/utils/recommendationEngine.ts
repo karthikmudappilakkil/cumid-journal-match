@@ -1,6 +1,6 @@
 import { DIARY_CATALOGUE } from '../data/products';
 import { QUIZ_QUESTIONS } from '../data/quizData';
-import type { QuizAnswers, RecommendationResult, DiaryProduct, QuizOption } from '../types';
+import type { QuizAnswers, RecommendationResult, DiaryProduct, QuizOption, MatchStrength } from '../types';
 
 /**
  * Weights:
@@ -9,8 +9,6 @@ import type { QuizAnswers, RecommendationResult, DiaryProduct, QuizOption } from
  * - Mood: 20%
  * - Aesthetic: 15%
  * Total = 100%
- *
- * Scoring is genuine, un-inflated and directly reflective of matching criteria.
  */
 export const SCORING_WEIGHTS = {
   palette: 35,
@@ -23,24 +21,23 @@ export function calculateRecommendation(
   answers: Partial<QuizAnswers> = {},
   catalogue: DiaryProduct[] = DIARY_CATALOGUE
 ): RecommendationResult {
-  // Graceful fallback for empty catalogue
   if (!catalogue || catalogue.length === 0) {
     throw new Error('No diary concepts found in catalogue.');
   }
 
-  // Safe lookup of selected options (or defaults if missing)
-  const moodOption: QuizOption =
-    QUIZ_QUESTIONS[0].options.find((o) => o.id === answers.mood) ||
-    QUIZ_QUESTIONS[0].options[0];
-  const purposeOption: QuizOption =
-    QUIZ_QUESTIONS[1].options.find((o) => o.id === answers.purpose) ||
-    QUIZ_QUESTIONS[1].options[0];
-  const aestheticOption: QuizOption =
-    QUIZ_QUESTIONS[2].options.find((o) => o.id === answers.aesthetic) ||
-    QUIZ_QUESTIONS[2].options[0];
-  const paletteOption: QuizOption =
-    QUIZ_QUESTIONS[3].options.find((o) => o.id === answers.palette) ||
-    QUIZ_QUESTIONS[3].options[0];
+  // Lookup ONLY options the user actually selected; do not substitute unchosen defaults
+  const moodOption: QuizOption | undefined = answers.mood
+    ? QUIZ_QUESTIONS[0].options.find((o) => o.id === answers.mood)
+    : undefined;
+  const purposeOption: QuizOption | undefined = answers.purpose
+    ? QUIZ_QUESTIONS[1].options.find((o) => o.id === answers.purpose)
+    : undefined;
+  const aestheticOption: QuizOption | undefined = answers.aesthetic
+    ? QUIZ_QUESTIONS[2].options.find((o) => o.id === answers.aesthetic)
+    : undefined;
+  const paletteOption: QuizOption | undefined = answers.palette
+    ? QUIZ_QUESTIONS[3].options.find((o) => o.id === answers.palette)
+    : undefined;
 
   // Score each diary concept based on genuine matching logic
   const scoredProducts = catalogue.map((product) => {
@@ -76,7 +73,7 @@ export function calculateRecommendation(
 
   // Deterministic sorting:
   // 1. Higher score first
-  // 2. Tie-breaker: alphabetical by product name for deterministic stability
+  // 2. Stable secondary tie-breaker: alphabetical by product name
   scoredProducts.sort((a, b) => {
     if (b.score !== a.score) {
       return b.score - a.score;
@@ -93,12 +90,22 @@ export function calculateRecommendation(
   const genuinePrimaryScore = top.score;
   const genuineSecondaryScore = runnerUp.score;
 
-  // Personalized explanations strictly grounded in product attributes & user answers
+  // Determine match strength tier
+  let matchStrength: MatchStrength = 'exploratory';
+  if (genuinePrimaryScore >= 70) {
+    matchStrength = 'strong';
+  } else if (genuinePrimaryScore >= 35) {
+    matchStrength = 'moderate';
+  } else if (genuinePrimaryScore > 0) {
+    matchStrength = 'weak';
+  }
+
+  // Explanations strictly grounded in the user's actual selections and product specs
   const matchReasons = {
-    purposeInsight: generatePurposeInsight(answers.purpose, purposeOption, topMatch, top.matchedCriteria.purpose),
-    moodInsight: generateMoodInsight(answers.mood, moodOption, topMatch, top.matchedCriteria.mood),
-    aestheticInsight: generateAestheticInsight(answers.aesthetic, aestheticOption, topMatch, top.matchedCriteria.aesthetic),
-    paletteInsight: generatePaletteInsight(answers.palette, paletteOption, topMatch, top.matchedCriteria.palette),
+    purposeInsight: generatePurposeInsight(purposeOption, topMatch, top.matchedCriteria.purpose),
+    moodInsight: generateMoodInsight(moodOption, topMatch, top.matchedCriteria.mood),
+    aestheticInsight: generateAestheticInsight(aestheticOption, topMatch, top.matchedCriteria.aesthetic),
+    paletteInsight: generatePaletteInsight(paletteOption, topMatch, top.matchedCriteria.palette),
   };
 
   return {
@@ -106,6 +113,7 @@ export function calculateRecommendation(
     secondaryDiary: runnerUpProduct,
     matchScore: genuinePrimaryScore,
     secondaryMatchScore: genuineSecondaryScore,
+    matchStrength,
     matchReasons,
     matchedCriteria: top.matchedCriteria,
     userSelections: {
@@ -118,69 +126,65 @@ export function calculateRecommendation(
 }
 
 function generatePurposeInsight(
-  purposeId: string | undefined,
-  purposeOption: QuizOption,
+  purposeOption: QuizOption | undefined,
   product: DiaryProduct,
   isDirectMatch: boolean
 ): string {
-  if (!purposeId) {
-    return `Versatile ${product.specs.rulingType} layout accommodating varied writing and organization practices.`;
+  if (!purposeOption) {
+    return `No purpose was selected. This concept features ${product.specs.rulingType} adaptable for various writing practices.`;
   }
 
   if (isDirectMatch) {
     return `Directly matches your ${purposeOption.label} practice with ${product.specs.rulingType} and ${product.specs.binding} comfort.`;
   }
 
-  return `While originally tailored for ${product.matchingProfile.purposes.join(', ')}, its ${product.specs.rulingType} adapts well for ${purposeOption.label}.`;
+  return `While developed with a focus on ${product.matchingProfile.purposes.join(', ')}, its ${product.specs.rulingType} layout can accommodate ${purposeOption.label}.`;
 }
 
 function generateMoodInsight(
-  moodId: string | undefined,
-  moodOption: QuizOption,
+  moodOption: QuizOption | undefined,
   product: DiaryProduct,
   isDirectMatch: boolean
 ): string {
-  if (!moodId) {
-    return `The ${product.collection} concept is designed to cultivate an unhurried, mindful headspace.`;
+  if (!moodOption) {
+    return `No mood was selected. The ${product.collection} concept is crafted to cultivate an unhurried, mindful space.`;
   }
 
   if (isDirectMatch) {
     return `Complements your ${moodOption.label} state through the ${product.collection} concept, created as a ${product.tagline.toLowerCase()}.`;
   }
 
-  return `Provides a grounding contrast to your ${moodOption.label} energy with a calming writing rhythm.`;
+  return `Offers an alternative calming tempo to your ${moodOption.label} energy with an intentional writing structure.`;
 }
 
 function generateAestheticInsight(
-  aestheticId: string | undefined,
-  aestheticOption: QuizOption,
+  aestheticOption: QuizOption | undefined,
   product: DiaryProduct,
   isDirectMatch: boolean
 ): string {
-  if (!aestheticId) {
-    return `Features ${product.specs.coverMaterial} with an understated ${product.visualPattern} aesthetic.`;
+  if (!aestheticOption) {
+    return `No aesthetic was selected. Presents ${product.specs.coverMaterial} with an understated ${product.visualPattern} style.`;
   }
 
   if (isDirectMatch) {
-    return `Embodies your ${aestheticOption.label} aesthetic with tactile ${product.specs.coverMaterial} and ${product.visualPattern} styling.`;
+    return `Embodies your ${aestheticOption.label} preference with tactile ${product.specs.coverMaterial} and ${product.visualPattern} detailing.`;
   }
 
-  return `Expresses a distinct tactile presence in ${product.specs.coverMaterial}, offering a balanced alternative to ${aestheticOption.label}.`;
+  return `Presents tactile ${product.specs.coverMaterial}, providing a clean stylistic complement to ${aestheticOption.label}.`;
 }
 
 function generatePaletteInsight(
-  paletteId: string | undefined,
-  paletteOption: QuizOption,
+  paletteOption: QuizOption | undefined,
   product: DiaryProduct,
   isDirectMatch: boolean
 ): string {
-  if (!paletteId) {
-    return `Finished in signature cover and bookmark hues tailored to this diary concept.`;
+  if (!paletteOption) {
+    return `No palette was selected. Features signature ${product.primaryColorHex} cover styling with coordinating ribbon details.`;
   }
 
   if (isDirectMatch) {
-    return `Directly incorporates your ${paletteOption.label} choice with a curated ${product.primaryColorHex} cover finish and coordinating ribbon marker.`;
+    return `Directly reflects your ${paletteOption.label} choice with a curated ${product.primaryColorHex} cover finish and coordinating ribbon marker.`;
   }
 
-  return `Features an organic ${product.primaryColorHex} finish that harmonizes tastefully alongside ${paletteOption.label} desktop accessories.`;
+  return `Finished in ${product.primaryColorHex}, offering an organic neutral palette that pairs alongside ${paletteOption.label} workspace items.`;
 }

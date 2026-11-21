@@ -60,11 +60,14 @@ export interface DiaryProduct {
   featuredHighlights: string[];
 }
 
+export type MatchStrength = 'strong' | 'moderate' | 'weak' | 'exploratory';
+
 export interface RecommendationResult {
   primaryDiary: DiaryProduct;
   secondaryDiary: DiaryProduct;
   matchScore: number;
   secondaryMatchScore: number;
+  matchStrength: MatchStrength;
   matchReasons: {
     moodInsight: string;
     purposeInsight: string;
@@ -78,9 +81,9 @@ export interface RecommendationResult {
     palette: boolean;
   };
   userSelections: {
-    mood: QuizOption;
-    purpose: QuizOption;
-    aesthetic: QuizOption;
-    palette: QuizOption;
+    mood?: QuizOption;
+    purpose?: QuizOption;
+    aesthetic?: QuizOption;
+    palette?: QuizOption;
   };
 }
