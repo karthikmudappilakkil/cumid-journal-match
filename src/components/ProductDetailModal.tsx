@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Bookmark, Copy, CheckCircle2, Info, AlertCircle } from 'lucide-react';
+import { X, Check, Bookmark, Copy, CheckCircle2, Info } from 'lucide-react';
 import { DiaryProduct } from '../types';
 import { DiaryIllustration } from './DiaryIllustration';
 
@@ -18,17 +18,28 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [savedPreference, setSavedPreference] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Close on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSavePreference = () => {
     setSavedPreference(true);
     setTimeout(() => {
       setSavedPreference(false);
-    }, 4000);
+    }, 3500);
   };
 
   const handleCopySpecs = () => {
-    const text = `CUMID Recommendation Match: ${product.name}\nCollection: ${product.collection}\nPaper Specimen: ${product.specs.paperWeight}\nPages: ${product.specs.pages} (${product.specs.rulingType})\nBinding: ${product.specs.binding}\nCover Texture: ${product.specs.coverMaterial}\nNotice: Concept design specimen for CUMID Diary Finder.`;
+    const text = `CUMID Diary Concept: ${product.name}\nCollection: ${product.collection}\nPaper Benchmark: ${product.specs.paperWeight}\nFormat: ${product.specs.pages} Pages (${product.specs.rulingType})\nBinding: ${product.specs.binding}\nCover Texture: ${product.specs.coverMaterial}\nNotice: Explore this CUMID diary concept. Product specifications, materials and availability are subject to final development.`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -36,7 +47,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 md:p-10">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-diary-title"
+        className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 md:p-10"
+      >
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -65,7 +81,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   Concept Prototype
                 </span>
               </div>
-              <h3 className="font-editorial text-2xl text-cream-900 font-medium">
+              <h3 id="modal-diary-title" className="font-editorial text-2xl text-cream-900 font-medium">
                 {product.name}
               </h3>
             </div>
@@ -106,16 +122,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </ul>
                 </div>
 
-                {/* Transparent Catalogue Integration & Prototype Notice */}
+                {/* Friendly, Professional Concept Notice */}
                 <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50/90 border border-amber-200 text-xs text-amber-950">
                   <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <span className="font-semibold block">Catalogue Status Notice:</span>
+                    <span className="font-semibold block">Concept Prototype Notice</span>
                     <p className="text-[11px] leading-relaxed text-amber-900">
-                      This journal represents a concept archetype. Official CUMID retail pricing,
-                      live inventory, and direct ecommerce checkout will be updated via{' '}
-                      <code className="bg-amber-100 font-mono px-1 rounded">src/data/products.ts</code>{' '}
-                      upon catalogue launch.
+                      Explore this CUMID diary concept. Product specifications, materials and availability are subject to final development.
                     </p>
                   </div>
                 </div>
@@ -126,10 +139,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-cream-900">
-                  Specimen Engineering Targets
+                  Design Benchmark Specifications
                 </h4>
                 <span className="text-[10px] font-mono text-stone-400">
-                  Design Benchmark Specs
+                  Development Targets
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
@@ -159,21 +172,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Commerce Status Transparency Notice */}
-            <div className="p-3 rounded-xl bg-cream-100/90 border border-cream-300 text-[11px] text-stone-600 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-stone-500 shrink-0" />
-              <span>
-                <strong>Commerce Transparency:</strong> Direct checkout and live warehouse reservations are currently inactive. Saving your preference records this match to your session only.
-              </span>
-            </div>
           </div>
 
           {/* Modal Footer */}
           <div className="p-6 border-t border-cream-200 bg-white/70 flex flex-col sm:flex-row items-center justify-between gap-4">
             <button
               onClick={handleCopySpecs}
-              className="inline-flex items-center gap-1.5 text-xs text-stone-600 hover:text-cream-900 transition-colors py-2 px-3 rounded-lg hover:bg-cream-100 focus:outline-none"
+              className="inline-flex items-center gap-1.5 text-xs text-stone-600 hover:text-cream-900 transition-colors py-2 px-3 rounded-lg hover:bg-cream-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-500"
             >
               {copied ? (
                 <>
@@ -191,7 +196,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={onClose}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-cream-300 hover:bg-cream-100 text-xs font-medium text-stone-700 transition-colors"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-cream-300 hover:bg-cream-100 text-xs font-medium text-stone-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-500"
               >
                 Close
               </button>
@@ -203,12 +208,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 {savedPreference ? (
                   <>
                     <Check className="w-4 h-4 stroke-[3]" />
-                    <span>Preference Saved to Session (Demo)</span>
+                    <span>Concept Saved to Session</span>
                   </>
                 ) : (
                   <>
                     <Bookmark className="w-4 h-4" />
-                    <span>Save Archetype to Session</span>
+                    <span>Save Concept Reference</span>
                   </>
                 )}
               </button>

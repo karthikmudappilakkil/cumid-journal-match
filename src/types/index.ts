@@ -64,11 +64,18 @@ export interface RecommendationResult {
   primaryDiary: DiaryProduct;
   secondaryDiary: DiaryProduct;
   matchScore: number;
+  secondaryMatchScore: number;
   matchReasons: {
     moodInsight: string;
     purposeInsight: string;
     aestheticInsight: string;
     paletteInsight: string;
+  };
+  matchedCriteria: {
+    mood: boolean;
+    purpose: boolean;
+    aesthetic: boolean;
+    palette: boolean;
   };
   userSelections: {
     mood: QuizOption;

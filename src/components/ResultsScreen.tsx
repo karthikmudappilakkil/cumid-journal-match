@@ -4,11 +4,12 @@ import confetti from 'canvas-confetti';
 import {
   Sparkles,
   RotateCcw,
-  ShoppingBag,
+  BookOpen,
   Share2,
   CheckCircle2,
   ArrowRight,
   Eye,
+  Check,
 } from 'lucide-react';
 import { RecommendationResult, DiaryProduct } from '../types';
 import { DiaryIllustration } from './DiaryIllustration';
@@ -16,9 +17,8 @@ import { ProductDetailModal } from './ProductDetailModal';
 import { IconHelper } from './IconHelper';
 
 interface ResultsScreenProps {
-  recommendation: RecommendationResult;
+  recommendation: RecommendationResult | null;
   onRestart: () => void;
-  onSelectAlternative?: (product: DiaryProduct) => void;
 }
 
 export const ResultsScreen: React.FC<ResultsScreenProps> = ({
@@ -28,24 +28,57 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
   const [selectedProductForModal, setSelectedProductForModal] = useState<DiaryProduct | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const { primaryDiary, secondaryDiary, matchScore, matchReasons, userSelections } = recommendation;
+  // Fallback for missing/empty recommendation
+  if (!recommendation || !recommendation.primaryDiary) {
+    return (
+      <div className="py-20 text-center max-w-lg mx-auto px-4">
+        <div className="p-8 rounded-3xl bg-white/80 border border-cream-300 shadow-soft-md">
+          <h3 className="font-editorial text-3xl text-cream-900 font-medium mb-3">
+            Unable to Generate Match
+          </h3>
+          <p className="text-sm text-stone-600 leading-relaxed mb-6">
+            We could not determine a matching diary from the provided responses. Please retake the quiz to explore our diary concepts.
+          </p>
+          <button
+            onClick={onRestart}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sage-700 hover:bg-sage-800 text-white text-xs font-semibold transition-all shadow-soft-sm"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Restart Quiz</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  // Trigger celebratory confetti on mount
+  const {
+    primaryDiary,
+    secondaryDiary,
+    matchScore,
+    secondaryMatchScore,
+    matchReasons,
+    matchedCriteria,
+    userSelections,
+  } = recommendation;
+
+  // Trigger celebratory confetti on mount if genuine match >= 50%
   useEffect(() => {
     try {
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#729772', '#9C7EBA', '#DFCDB7', '#D48C7B'],
-      });
+      if (matchScore >= 50) {
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#729772', '#9C7EBA', '#DFCDB7', '#D48C7B'],
+        });
+      }
     } catch {
-      // Ignore if confetti is not available
+      // Defensive fallback if canvas context is restricted
     }
-  }, []);
+  }, [matchScore]);
 
   const handleShare = () => {
-    const text = `My CUMID Diary Match: ${primaryDiary.name} (${matchScore}% Match)! Calibrated for my ritual and aesthetic temperament.`;
+    const text = `My CUMID Diary Match: ${primaryDiary.name} (${matchScore}% Genuine Match)! Concept recommendation from CUMID Diary Finder.`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -140,7 +173,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           </div>
         </motion.div>
 
-        {/* Right Column: Editorial Analysis & Shop CTA */}
+        {/* Right Column: Editorial Analysis & Details CTA */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -182,16 +215,16 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               onClick={() => setSelectedProductForModal(primaryDiary)}
               className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-sage-700 hover:bg-sage-800 text-white font-medium text-base shadow-soft-md hover:shadow-soft-hover transition-all focus:outline-none focus-visible:ring-3 focus-visible:ring-sage-500"
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Shop Now</span>
+              <BookOpen className="w-4 h-4" />
+              <span>View Diary Details</span>
             </motion.button>
 
             <button
               onClick={() => setSelectedProductForModal(primaryDiary)}
-              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-white hover:bg-cream-100 text-cream-900 font-medium text-sm border border-cream-300 transition-colors shadow-soft-sm focus:outline-none"
+              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-white hover:bg-cream-100 text-cream-900 font-medium text-sm border border-cream-300 transition-colors shadow-soft-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-500"
             >
               <Eye className="w-4 h-4 text-stone-500" />
-              <span>View Full Specifications</span>
+              <span>View Benchmark Specs</span>
             </button>
           </div>
         </motion.div>
@@ -204,8 +237,11 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             Ritual Harmony Breakdown
           </span>
           <h3 className="font-editorial text-2xl sm:text-3xl text-cream-900 font-medium mt-1">
-            How Your Answers Shaped This Journal
+            How Your Answers Shaped This Recommendation
           </h3>
+          <p className="text-xs text-stone-500 mt-2">
+            Weighted match: Palette (35%), Purpose (30%), Mood (20%), Aesthetic (15%)
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -213,7 +249,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
-                <span>01 • Mood</span>
+                <span>01 • Mood (20%)</span>
                 <IconHelper name={userSelections.mood.iconName} className="w-4 h-4 text-sage-600" />
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
@@ -224,8 +260,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
-              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
-              {matchReasons.moodInsight}
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-[10px] uppercase font-mono text-sage-700">Alignment</span>
+                {matchedCriteria.mood ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sage-700">
+                    <Check className="w-3 h-3" /> Matched (+20%)
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                )}
+              </div>
+              <p className="leading-snug">{matchReasons.moodInsight}</p>
             </div>
           </div>
 
@@ -233,7 +278,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
-                <span>02 • Purpose</span>
+                <span>02 • Purpose (30%)</span>
                 <IconHelper name={userSelections.purpose.iconName} className="w-4 h-4 text-sage-600" />
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
@@ -244,8 +289,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
-              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
-              {matchReasons.purposeInsight}
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-[10px] uppercase font-mono text-sage-700">Alignment</span>
+                {matchedCriteria.purpose ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sage-700">
+                    <Check className="w-3 h-3" /> Matched (+30%)
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                )}
+              </div>
+              <p className="leading-snug">{matchReasons.purposeInsight}</p>
             </div>
           </div>
 
@@ -253,7 +307,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
-                <span>03 • Aesthetic</span>
+                <span>03 • Aesthetic (15%)</span>
                 <IconHelper name={userSelections.aesthetic.iconName} className="w-4 h-4 text-sage-600" />
               </div>
               <h4 className="font-semibold text-cream-900 text-sm mb-1">
@@ -264,8 +318,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
-              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
-              {matchReasons.aestheticInsight}
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-[10px] uppercase font-mono text-sage-700">Alignment</span>
+                {matchedCriteria.aesthetic ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sage-700">
+                    <Check className="w-3 h-3" /> Matched (+15%)
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                )}
+              </div>
+              <p className="leading-snug">{matchReasons.aestheticInsight}</p>
             </div>
           </div>
 
@@ -273,7 +336,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
-                <span>04 • Palette</span>
+                <span>04 • Palette (35%)</span>
                 <span
                   className="w-4 h-4 rounded-full border border-black/10 inline-block"
                   style={{ backgroundColor: userSelections.palette.colorSwatch?.primary || '#729772' }}
@@ -287,8 +350,17 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               </p>
             </div>
             <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
-              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
-              {matchReasons.paletteInsight}
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-[10px] uppercase font-mono text-sage-700">Alignment</span>
+                {matchedCriteria.palette ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sage-700">
+                    <Check className="w-3 h-3" /> Matched (+35%)
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-stone-400 font-mono">Partial</span>
+                )}
+              </div>
+              <p className="leading-snug">{matchReasons.paletteInsight}</p>
             </div>
           </div>
         </div>
@@ -304,7 +376,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               </div>
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">
-                  Alternative Companion (89% Affinity)
+                  Alternative Companion • {secondaryMatchScore}% Match
                 </span>
                 <h4 className="font-editorial text-2xl text-cream-900 font-medium">
                   {secondaryDiary.name}
@@ -317,9 +389,9 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
 
             <button
               onClick={() => setSelectedProductForModal(secondaryDiary)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-cream-100 hover:bg-cream-200 border border-cream-300 text-xs font-semibold text-cream-900 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-cream-100 hover:bg-cream-200 border border-cream-300 text-xs font-semibold text-cream-900 transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-500"
             >
-              <span>Explore This Journal</span>
+              <span>Explore This Concept</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -330,7 +402,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
       <div className="mt-12 text-center">
         <button
           onClick={onRestart}
-          className="inline-flex items-center gap-2 text-xs font-medium text-stone-500 hover:text-cream-900 transition-colors py-2 px-4 rounded-full hover:bg-cream-200"
+          className="inline-flex items-center gap-2 text-xs font-medium text-stone-500 hover:text-cream-900 transition-colors py-2 px-4 rounded-full hover:bg-cream-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>Want to explore a different mood or purpose? Restart Quiz</span>

@@ -2,28 +2,23 @@ import type { DiaryProduct } from '../types';
 
 /**
  * =====================================================================
- * CUMID PRODUCT CATALOGUE DATA FILE (ARCHETYPE SPECIMENS)
+ * CUMID PRODUCT CATALOGUE DATA FILE (CONCEPT PROTOTYPES)
  * =====================================================================
- * NOTE: As per project guidelines, this separate data file serves as the
- * single configurable source of truth for diary models and matching profiles.
+ * Single source of truth for CUMID diary design concepts and matching profiles.
  *
- * All entries below represent curated DESIGN ARCHETYPES and concept models
- * for the diary recommendation engine. No fabricated retail prices, live
- * inventory stock, or verified laboratory certifications are asserted as facts.
- *
- * Catalogue managers:
- * When official CUMID SKU names, production prices, certified sustainability
- * audits, and direct store URLs become available, update the entries in this array.
+ * All entries below represent curated design concepts and development benchmarks.
+ * No fabricated retail prices, live inventory availability, or verified
+ * third-party laboratory certifications are asserted as facts.
  * =====================================================================
  */
 
 const PROTOTYPE_CATALOGUE_NOTICE =
-  'Concept Archetype Specimen: Specifications and material targets are design benchmarks. Official retail pricing, verified certifications, and live inventory will be published upon formal CUMID catalogue integration.';
+  'Explore this CUMID diary concept. Product specifications, materials and availability are subject to final development.';
 
 export const DIARY_CATALOGUE: DiaryProduct[] = [
   {
     id: 'cumid-botanical-sage',
-    name: 'The Botanical Meadow Journal (Archetype)',
+    name: 'The Botanical Meadow Journal (Concept)',
     tagline: 'Quiet companion concept for mindful reflections and nature observations',
     collection: 'Flora & Solitude Concept Edition',
     isArchetypeModel: true,
@@ -60,7 +55,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
   },
   {
     id: 'cumid-twilight-lavender',
-    name: 'The Twilight Contemplation Diary (Archetype)',
+    name: 'The Twilight Contemplation Diary (Concept)',
     tagline: 'Gentle sanctuary concept for night thoughts, poetry, and whimsical musings',
     collection: 'Nocturne & Reverie Concept Edition',
     isArchetypeModel: true,
@@ -97,7 +92,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
   },
   {
     id: 'cumid-heirloom-cream',
-    name: 'The Heirloom Classic Clothbound Notebook (Archetype)',
+    name: 'The Heirloom Classic Clothbound Notebook (Concept)',
     tagline: 'European library craft concept for profound thoughts and daily discipline',
     collection: 'Antiquarian Archive Concept Edition',
     isArchetypeModel: true,
@@ -134,7 +129,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
   },
   {
     id: 'cumid-terracotta-planner',
-    name: 'The Sunbaked Horizon Daily Executive (Archetype)',
+    name: 'The Sunbaked Horizon Daily Executive (Concept)',
     tagline: 'Grounded momentum concept for bold ambition and project architecture',
     collection: 'Terra & Focus Concept Edition',
     isArchetypeModel: true,
@@ -171,7 +166,7 @@ export const DIARY_CATALOGUE: DiaryProduct[] = [
   },
   {
     id: 'cumid-minimal-zen-atelier',
-    name: 'The Atelier Dot-Grid Master Journal (Archetype)',
+    name: 'The Atelier Dot-Grid Master Journal (Concept)',
     tagline: 'Pure, unencumbered space concept for freeform thinkers and organizers',
     collection: 'Pure Form Concept Edition',
     isArchetypeModel: true,

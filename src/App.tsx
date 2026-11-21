@@ -24,6 +24,7 @@ export const App: React.FC = () => {
 
   const totalQuestions = QUIZ_QUESTIONS.length;
   const isQuizUnderway = currentStep >= 1 && currentStep <= totalQuestions;
+  const activeQuestion = QUIZ_QUESTIONS[currentStep - 1];
 
   // Start Quiz from Landing
   const handleStart = () => {
@@ -48,6 +49,17 @@ export const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 1) {
       setCurrentStep(0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Check if current question already has an answer selected
+  const hasCurrentAnswer = Boolean(activeQuestion && answers[activeQuestion.id]);
+
+  // Forward navigation handler when question is already answered
+  const handleNext = () => {
+    if (hasCurrentAnswer && currentStep < totalQuestions) {
+      setCurrentStep((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -81,9 +93,6 @@ export const App: React.FC = () => {
       }
     }, 280);
   };
-
-  // Current active question
-  const activeQuestion = QUIZ_QUESTIONS[currentStep - 1];
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-100 text-cream-900 selection:bg-sage-200">
@@ -128,6 +137,8 @@ export const App: React.FC = () => {
                 stepLabels={STEP_LABELS}
                 canGoBack={true}
                 onBack={handleBack}
+                canGoForward={hasCurrentAnswer}
+                onNext={handleNext}
               />
 
               {/* Question Header */}

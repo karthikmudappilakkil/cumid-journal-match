@@ -1,72 +1,113 @@
 import { DIARY_CATALOGUE } from '../data/products';
 import { QUIZ_QUESTIONS } from '../data/quizData';
-import type { QuizAnswers, RecommendationResult, DiaryProduct } from '../types';
+import type { QuizAnswers, RecommendationResult, DiaryProduct, QuizOption } from '../types';
 
-export function calculateRecommendation(answers: QuizAnswers): RecommendationResult {
-  // Find selected option objects
-  const moodOption = QUIZ_QUESTIONS[0].options.find((o) => o.id === answers.mood) || QUIZ_QUESTIONS[0].options[0];
-  const purposeOption = QUIZ_QUESTIONS[1].options.find((o) => o.id === answers.purpose) || QUIZ_QUESTIONS[1].options[0];
-  const aestheticOption = QUIZ_QUESTIONS[2].options.find((o) => o.id === answers.aesthetic) || QUIZ_QUESTIONS[2].options[0];
-  const paletteOption = QUIZ_QUESTIONS[3].options.find((o) => o.id === answers.palette) || QUIZ_QUESTIONS[3].options[0];
+/**
+ * Weights:
+ * - Palette: 35%
+ * - Purpose: 30%
+ * - Mood: 20%
+ * - Aesthetic: 15%
+ * Total = 100%
+ *
+ * Scoring is genuine, un-inflated and directly reflective of matching criteria.
+ */
+export const SCORING_WEIGHTS = {
+  palette: 35,
+  purpose: 30,
+  mood: 20,
+  aesthetic: 15,
+} as const;
 
-  // Score each diary product
-  const scoredProducts = DIARY_CATALOGUE.map((product) => {
+export function calculateRecommendation(
+  answers: Partial<QuizAnswers> = {},
+  catalogue: DiaryProduct[] = DIARY_CATALOGUE
+): RecommendationResult {
+  // Graceful fallback for empty catalogue
+  if (!catalogue || catalogue.length === 0) {
+    throw new Error('No diary concepts found in catalogue.');
+  }
+
+  // Safe lookup of selected options (or defaults if missing)
+  const moodOption: QuizOption =
+    QUIZ_QUESTIONS[0].options.find((o) => o.id === answers.mood) ||
+    QUIZ_QUESTIONS[0].options[0];
+  const purposeOption: QuizOption =
+    QUIZ_QUESTIONS[1].options.find((o) => o.id === answers.purpose) ||
+    QUIZ_QUESTIONS[1].options[0];
+  const aestheticOption: QuizOption =
+    QUIZ_QUESTIONS[2].options.find((o) => o.id === answers.aesthetic) ||
+    QUIZ_QUESTIONS[2].options[0];
+  const paletteOption: QuizOption =
+    QUIZ_QUESTIONS[3].options.find((o) => o.id === answers.palette) ||
+    QUIZ_QUESTIONS[3].options[0];
+
+  // Score each diary concept based on genuine matching logic
+  const scoredProducts = catalogue.map((product) => {
     let score = 0;
-    const profile = product.matchingProfile;
+    const profile = product.matchingProfile || {
+      moods: [],
+      purposes: [],
+      aesthetics: [],
+      palettes: [],
+    };
 
-    // Palette match (weight: 35)
-    if (profile.palettes.includes(answers.palette)) {
-      score += 35;
-    } else {
-      score += 10;
-    }
+    const paletteMatched = Boolean(answers.palette && profile.palettes.includes(answers.palette));
+    const purposeMatched = Boolean(answers.purpose && profile.purposes.includes(answers.purpose));
+    const moodMatched = Boolean(answers.mood && profile.moods.includes(answers.mood));
+    const aestheticMatched = Boolean(answers.aesthetic && profile.aesthetics.includes(answers.aesthetic));
 
-    // Purpose match (weight: 30)
-    if (profile.purposes.includes(answers.purpose)) {
-      score += 30;
-    } else {
-      score += 8;
-    }
+    if (paletteMatched) score += SCORING_WEIGHTS.palette;
+    if (purposeMatched) score += SCORING_WEIGHTS.purpose;
+    if (moodMatched) score += SCORING_WEIGHTS.mood;
+    if (aestheticMatched) score += SCORING_WEIGHTS.aesthetic;
 
-    // Mood match (weight: 20)
-    if (profile.moods.includes(answers.mood)) {
-      score += 20;
-    } else {
-      score += 6;
-    }
-
-    // Aesthetic match (weight: 15)
-    if (profile.aesthetics.includes(answers.aesthetic)) {
-      score += 15;
-    } else {
-      score += 5;
-    }
-
-    return { product, score };
+    return {
+      product,
+      score,
+      matchedCriteria: {
+        palette: paletteMatched,
+        purpose: purposeMatched,
+        mood: moodMatched,
+        aesthetic: aestheticMatched,
+      },
+    };
   });
 
-  // Sort descending by score
-  scoredProducts.sort((a, b) => b.score - a.score);
+  // Deterministic sorting:
+  // 1. Higher score first
+  // 2. Tie-breaker: alphabetical by product name for deterministic stability
+  scoredProducts.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    return a.product.name.localeCompare(b.product.name);
+  });
 
-  const topMatch = scoredProducts[0].product;
-  const runnerUp = scoredProducts[1]?.product || scoredProducts[0].product;
-  const rawScore = scoredProducts[0].score;
-  // Normalize score between 92% and 99% for an encouraging, realistic match affinity
-  const matchPercentage = Math.min(99, Math.max(92, Math.round(88 + (rawScore / 100) * 11)));
+  const top = scoredProducts[0];
+  const runnerUp = scoredProducts[1] || scoredProducts[0];
 
-  // Generate personalized match reasons based on specific selections
+  const topMatch = top.product;
+  const runnerUpProduct = runnerUp.product;
+
+  const genuinePrimaryScore = top.score;
+  const genuineSecondaryScore = runnerUp.score;
+
+  // Personalized explanations strictly grounded in product attributes & user answers
   const matchReasons = {
-    moodInsight: generateMoodInsight(answers.mood, topMatch),
-    purposeInsight: generatePurposeInsight(answers.purpose, topMatch),
-    aestheticInsight: generateAestheticInsight(answers.aesthetic, topMatch),
-    paletteInsight: generatePaletteInsight(answers.palette, topMatch),
+    purposeInsight: generatePurposeInsight(answers.purpose, purposeOption, topMatch, top.matchedCriteria.purpose),
+    moodInsight: generateMoodInsight(answers.mood, moodOption, topMatch, top.matchedCriteria.mood),
+    aestheticInsight: generateAestheticInsight(answers.aesthetic, aestheticOption, topMatch, top.matchedCriteria.aesthetic),
+    paletteInsight: generatePaletteInsight(answers.palette, paletteOption, topMatch, top.matchedCriteria.palette),
   };
 
   return {
     primaryDiary: topMatch,
-    secondaryDiary: runnerUp,
-    matchScore: matchPercentage,
+    secondaryDiary: runnerUpProduct,
+    matchScore: genuinePrimaryScore,
+    secondaryMatchScore: genuineSecondaryScore,
     matchReasons,
+    matchedCriteria: top.matchedCriteria,
     userSelections: {
       mood: moodOption,
       purpose: purposeOption,
@@ -76,62 +117,70 @@ export function calculateRecommendation(answers: QuizAnswers): RecommendationRes
   };
 }
 
-function generateMoodInsight(mood: string, _product: DiaryProduct): string {
-  switch (mood) {
-    case 'reflective':
-      return `Tailored for peaceful contemplation with calming tactile bindings and zero-glare paper.`;
-    case 'driven':
-      return `Engineered for purposeful momentum, offering structured layout clarity and quick indexing.`;
-    case 'creative':
-      return `Unlocks your imaginative flow with generous margins and fountain-pen grade bleed resistance.`;
-    case 'seeking-order':
-      return `Brings grounding tranquility to mental clutter with clean ruling and tactile calm.`;
-    default:
-      return `Harmonizes with your emotional tempo and thoughtful headspace.`;
+function generatePurposeInsight(
+  purposeId: string | undefined,
+  purposeOption: QuizOption,
+  product: DiaryProduct,
+  isDirectMatch: boolean
+): string {
+  if (!purposeId) {
+    return `Versatile ${product.specs.rulingType} layout accommodating varied writing and organization practices.`;
   }
+
+  if (isDirectMatch) {
+    return `Directly matches your ${purposeOption.label} practice with ${product.specs.rulingType} and ${product.specs.binding} comfort.`;
+  }
+
+  return `While originally tailored for ${product.matchingProfile.purposes.join(', ')}, its ${product.specs.rulingType} adapts well for ${purposeOption.label}.`;
 }
 
-function generatePurposeInsight(purpose: string, product: DiaryProduct): string {
-  switch (purpose) {
-    case 'gratitude-reflection':
-      return `Crafted with unhurried ${product.specs.paperWeight} paper that elevates morning or evening gratitude rituals.`;
-    case 'bullet-habits':
-      return `Features ${product.specs.rulingType} optimized for clean habit trackers, checkboxes, and rapid logs.`;
-    case 'creative-writing':
-      return `Bound with lay-flat 180° stitching so your prose and sketches flow across seamless spreads.`;
-    case 'professional-planning':
-      return `Includes executive-grade ribbon dividers and durable archival cloth to organize projects with poise.`;
-    default:
-      return `Designed to support your daily practice with lasting craftsmanship.`;
+function generateMoodInsight(
+  moodId: string | undefined,
+  moodOption: QuizOption,
+  product: DiaryProduct,
+  isDirectMatch: boolean
+): string {
+  if (!moodId) {
+    return `The ${product.collection} concept is designed to cultivate an unhurried, mindful headspace.`;
   }
+
+  if (isDirectMatch) {
+    return `Complements your ${moodOption.label} state through the ${product.collection} concept, created as a ${product.tagline.toLowerCase()}.`;
+  }
+
+  return `Provides a grounding contrast to your ${moodOption.label} energy with a calming writing rhythm.`;
 }
 
-function generateAestheticInsight(aesthetic: string, _product: DiaryProduct): string {
-  switch (aesthetic) {
-    case 'minimalist-pure':
-      return `Quiet, unpretentious beauty with refined proportions and understated tactile finishes.`;
-    case 'vintage-european':
-      return `Nods to historic bookbinding ateliers with heirloom cloth and blind-embossed detailing.`;
-    case 'botanical-natural':
-      return `Rooted in natural textures, botanical undertones, and earth-conscious tactile covers.`;
-    case 'modern-pastel':
-      return `Contemporary pastel elegance that brings an optimistic, artful aesthetic to your tabletop.`;
-    default:
-      return `Elevates your workspace with sophisticated editorial balance.`;
+function generateAestheticInsight(
+  aestheticId: string | undefined,
+  aestheticOption: QuizOption,
+  product: DiaryProduct,
+  isDirectMatch: boolean
+): string {
+  if (!aestheticId) {
+    return `Features ${product.specs.coverMaterial} with an understated ${product.visualPattern} aesthetic.`;
   }
+
+  if (isDirectMatch) {
+    return `Embodies your ${aestheticOption.label} aesthetic with tactile ${product.specs.coverMaterial} and ${product.visualPattern} styling.`;
+  }
+
+  return `Expresses a distinct tactile presence in ${product.specs.coverMaterial}, offering a balanced alternative to ${aestheticOption.label}.`;
 }
 
-function generatePaletteInsight(palette: string, _product: DiaryProduct): string {
-  switch (palette) {
-    case 'sage-forest':
-      return `Wrapped in gentle sage and herbal greens that induce visual calm and focus.`;
-    case 'muted-lavender':
-      return `Dressed in ethereal twilight lavender for a dreamy, peaceful evening aura.`;
-    case 'warm-cream':
-      return `Enveloped in timeless honeyed linen and warm ivory tones that age gracefully.`;
-    case 'terracotta-clay':
-      return `Infused with sunbaked terracotta and warm earth tones for grounded vitality.`;
-    default:
-      return `Crafted in bespoke hues inspired by nature and mindful living.`;
+function generatePaletteInsight(
+  paletteId: string | undefined,
+  paletteOption: QuizOption,
+  product: DiaryProduct,
+  isDirectMatch: boolean
+): string {
+  if (!paletteId) {
+    return `Finished in signature cover and bookmark hues tailored to this diary concept.`;
   }
+
+  if (isDirectMatch) {
+    return `Directly incorporates your ${paletteOption.label} choice with a curated ${product.primaryColorHex} cover finish and coordinating ribbon marker.`;
+  }
+
+  return `Features an organic ${product.primaryColorHex} finish that harmonizes tastefully alongside ${paletteOption.label} desktop accessories.`;
 }

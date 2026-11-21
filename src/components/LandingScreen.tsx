@@ -100,7 +100,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onStart }) => {
             <div className="relative w-full max-w-md p-6 sm:p-8 rounded-3xl bg-white/70 border border-cream-300 shadow-soft-lg backdrop-blur-xs flex flex-col items-center">
               <div className="w-full flex items-center justify-between text-xs text-stone-500 mb-2 pb-3 border-b border-cream-200 font-mono tracking-wider">
                 <span>CUMID SPECIMEN</span>
-                <span className="text-sage-700 font-semibold uppercase">ARCHETYPE PREVIEW</span>
+                <span className="text-sage-700 font-semibold uppercase">CONCEPT PREVIEW</span>
               </div>
 
               {/* Center Diary Illustration */}

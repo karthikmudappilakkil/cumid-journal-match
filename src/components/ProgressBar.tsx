@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface ProgressBarProps {
   currentStep: number;
@@ -8,6 +8,8 @@ interface ProgressBarProps {
   stepLabels: string[];
   canGoBack: boolean;
   onBack: () => void;
+  canGoForward?: boolean;
+  onNext?: () => void;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -16,6 +18,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   stepLabels,
   canGoBack,
   onBack,
+  canGoForward = false,
+  onNext,
 }) => {
   const percentage = Math.round((currentStep / totalSteps) * 100);
 
@@ -48,6 +52,17 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           <span className="text-xs font-medium text-sage-700 bg-sage-100 px-2 py-0.5 rounded-full border border-sage-200">
             {percentage}%
           </span>
+
+          {canGoForward && onNext && (
+            <button
+              onClick={onNext}
+              className="group inline-flex items-center gap-1 text-xs font-medium text-sage-800 hover:text-cream-900 transition-colors py-1 px-2 rounded-lg hover:bg-sage-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-400 ml-1"
+              aria-label="Next question"
+            >
+              <span>Next</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          )}
         </div>
       </div>
 
