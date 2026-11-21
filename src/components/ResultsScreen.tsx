@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Eye,
   Check,
+  AlertCircle,
 } from 'lucide-react';
 import { RecommendationResult, DiaryProduct } from '../types';
 import { DiaryIllustration } from './DiaryIllustration';
@@ -28,6 +29,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
 }) => {
   const [selectedProductForModal, setSelectedProductForModal] = useState<DiaryProduct | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
   // Fallback for missing/empty recommendation
   if (!recommendation || !recommendation.primaryDiary) {
@@ -104,9 +106,16 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
 
   const handleShare = async () => {
     const text = `My CUMID Diary Match: ${primaryDiary.name} (${matchScore}% Genuine Match)! Concept recommendation from CUMID Diary Finder.`;
-    await copyToClipboard(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    const success = await copyToClipboard(text);
+    if (success) {
+      setCopied(true);
+      setCopyError(false);
+      setTimeout(() => setCopied(false), 2500);
+    } else {
+      setCopyError(true);
+      setCopied(false);
+      setTimeout(() => setCopyError(false), 3000);
+    }
   };
 
   return (
@@ -136,7 +145,12 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
             {copied ? (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
-                <span className="text-sage-700">Summary Copied!</span>
+                <span className="text-sage-700 font-medium">Summary Copied!</span>
+              </>
+            ) : copyError ? (
+              <>
+                <AlertCircle className="w-3.5 h-3.5 text-terracotta-600" />
+                <span className="text-terracotta-700 font-medium">Unable to Copy</span>
               </>
             ) : (
               <>

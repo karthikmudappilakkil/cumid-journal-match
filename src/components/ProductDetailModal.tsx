@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Bookmark, Copy, CheckCircle2, Info } from 'lucide-react';
+import { X, Check, Bookmark, Copy, CheckCircle2, Info, AlertCircle } from 'lucide-react';
 import { DiaryProduct } from '../types';
 import { DiaryIllustration } from './DiaryIllustration';
 import { copyToClipboard } from '../utils/clipboard';
@@ -18,6 +18,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 }) => {
   const [savedPreference, setSavedPreference] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
   // Close on Escape key press
   useEffect(() => {
@@ -41,9 +42,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   const handleCopySpecs = async () => {
     const text = `CUMID Diary Concept: ${product.name}\nCollection: ${product.collection}\nPaper Benchmark: ${product.specs.paperWeight}\nFormat: ${product.specs.pages} Pages (${product.specs.rulingType})\nBinding: ${product.specs.binding}\nCover Texture: ${product.specs.coverMaterial}\nNotice: Explore this CUMID diary concept. Product specifications, materials and availability are subject to final development.`;
-    await copyToClipboard(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    const success = await copyToClipboard(text);
+    if (success) {
+      setCopied(true);
+      setCopyError(false);
+      setTimeout(() => setCopied(false), 2500);
+    } else {
+      setCopyError(true);
+      setCopied(false);
+      setTimeout(() => setCopyError(false), 3000);
+    }
   };
 
   return (
@@ -185,6 +193,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
                   <span className="text-sage-700 font-medium">Spec Sheet Copied!</span>
+                </>
+              ) : copyError ? (
+                <>
+                  <AlertCircle className="w-3.5 h-3.5 text-terracotta-600" />
+                  <span className="text-terracotta-700 font-medium">Unable to Copy</span>
                 </>
               ) : (
                 <>

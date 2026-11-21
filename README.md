@@ -8,7 +8,7 @@ An interactive, production-quality frontend discovery experience for **CUMID**, 
 
 1. **Editorial Landing Experience**:
    - Hero headline *"Find Your Perfect Diary"* with editorial typography and Cormorant Garamond serif styling.
-   - Narrative value pillars: 120+ GSM fountain-pen friendly paper, ritual calibration, and 180° Smyth-sewn lay-flat binding.
+   - Narrative value pillars: 120+ GSM paper benchmark target for fountain pens, ritual calibration, and proposed 180° Smyth-sewn lay-flat binding concept.
    - Interactive preview of specimen diary concepts.
    - Intuitive *"Start Exploring"* discovery entry point.
 
