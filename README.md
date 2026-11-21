@@ -19,11 +19,12 @@ CUMID Diary Finder uses a transparent weighted recommendation engine to suggest 
    - **Step 3 — Aesthetic Temperament:** Minimalist & Pure, Vintage European & Antiquarian, Botanical & Earthy, Playful & Contemporary Pastel.
    - **Step 4 — Colour Palette:** Sage & Whispering Forest, Muted Lavender & Twilight Dusk, Warm Almond & Honeyed Cream, Terracotta & Sunbaked Clay.
 
-3. **Interaction & Accessibility Features**
+3. **Interaction & Accessibility-Oriented Features**
    - Four-step progress indicator and backward navigation.
    - Radio-group semantics, selected-state announcements, keyboard selection, and visible focus styling.
    - Animated transitions powered by **Framer Motion**.
    - A short recommendation-calculation transition.
+   - These describe implemented interface behaviors; they are not a claim of formal WCAG conformance or a completed accessibility audit.
 
 4. **Weighted Recommendation Engine**
    - Scores preferences using these weights:
@@ -142,7 +143,7 @@ npm test
 npm run preview
 ```
 
-**Important:** Run `npm run build` before `npm test`. The audit checks the generated `dist/` build artifacts as well as executing recommendation-engine tests and performing source-code inspections. Its static checks do not replace interactive browser testing, manual accessibility review, or testing on real mobile and desktop devices.
+**Important:** Run `npm run build` before `npm test`, because the audit inspects the generated `dist/` build artifacts. The audit executes recommendation-engine checks and also performs source-code and built-artifact inspections. Those static inspections do not prove that every interaction works in a browser, and they do not replace end-to-end browser testing, manual accessibility review, or testing on real mobile and desktop devices.
 
 ---
 
