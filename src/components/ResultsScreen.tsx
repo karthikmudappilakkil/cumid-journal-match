@@ -1,0 +1,350 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import {
+  Sparkles,
+  RotateCcw,
+  ShoppingBag,
+  Share2,
+  CheckCircle2,
+  ArrowRight,
+  Eye,
+} from 'lucide-react';
+import { RecommendationResult, DiaryProduct } from '../types';
+import { DiaryIllustration } from './DiaryIllustration';
+import { ProductDetailModal } from './ProductDetailModal';
+import { IconHelper } from './IconHelper';
+
+interface ResultsScreenProps {
+  recommendation: RecommendationResult;
+  onRestart: () => void;
+  onSelectAlternative?: (product: DiaryProduct) => void;
+}
+
+export const ResultsScreen: React.FC<ResultsScreenProps> = ({
+  recommendation,
+  onRestart,
+}) => {
+  const [selectedProductForModal, setSelectedProductForModal] = useState<DiaryProduct | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const { primaryDiary, secondaryDiary, matchScore, matchReasons, userSelections } = recommendation;
+
+  // Trigger celebratory confetti on mount
+  useEffect(() => {
+    try {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#729772', '#9C7EBA', '#DFCDB7', '#D48C7B'],
+      });
+    } catch {
+      // Ignore if confetti is not available
+    }
+  }, []);
+
+  const handleShare = () => {
+    const text = `My CUMID Diary Match: ${primaryDiary.name} (${matchScore}% Match)! Calibrated for my ritual and aesthetic temperament.`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  return (
+    <div className="py-8 sm:py-12 md:py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Top Match Affirmation Pill */}
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b border-cream-300"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-3 w-3 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-sage-600" />
+          </span>
+          <span className="text-xs font-mono uppercase tracking-widest text-stone-600 font-semibold">
+            Bespoke Recommendation Calibrated
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleShare}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-700 bg-white hover:bg-cream-100 border border-cream-300 transition-colors shadow-soft-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
+          >
+            {copied ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-sage-600" />
+                <span className="text-sage-700">Summary Copied!</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="w-3.5 h-3.5 text-stone-500" />
+                <span>Share Match</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={onRestart}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-stone-700 bg-white hover:bg-cream-100 border border-cream-300 transition-colors shadow-soft-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
+            <span>Retake Quiz</span>
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Primary Diary Spotlight Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-16">
+        {/* Left Column: Visual Book Illustration */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-5 flex flex-col items-center"
+        >
+          <div className="w-full bg-gradient-to-b from-white/90 to-cream-100/70 p-6 sm:p-8 rounded-3xl border border-cream-300 shadow-soft-lg flex flex-col items-center relative">
+            {/* Match Badge */}
+            <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sage-100 border border-sage-300 text-xs font-bold text-sage-900 shadow-soft-sm">
+              <Sparkles className="w-3.5 h-3.5 text-sage-600" />
+              <span>{matchScore}% Match</span>
+            </div>
+
+            <div className="absolute top-5 right-5 text-[10px] font-mono uppercase tracking-wider text-stone-400">
+              IDEAL COMPANION
+            </div>
+
+            <div className="my-6">
+              <DiaryIllustration product={primaryDiary} size="lg" />
+            </div>
+
+            {/* Quick Specs Pill Row */}
+            <div className="w-full grid grid-cols-3 gap-2 pt-4 border-t border-cream-200 text-center text-xs">
+              <div className="p-2 rounded-lg bg-cream-50 border border-cream-200">
+                <span className="block text-[10px] uppercase font-mono text-stone-400">Paper</span>
+                <span className="font-semibold text-cream-900">{primaryDiary.specs.paperWeight.split(' ')[0]}</span>
+              </div>
+              <div className="p-2 rounded-lg bg-cream-50 border border-cream-200">
+                <span className="block text-[10px] uppercase font-mono text-stone-400">Pages</span>
+                <span className="font-semibold text-cream-900">{primaryDiary.specs.pages}</span>
+              </div>
+              <div className="p-2 rounded-lg bg-cream-50 border border-cream-200">
+                <span className="block text-[10px] uppercase font-mono text-stone-400">Format</span>
+                <span className="font-semibold text-cream-900">{primaryDiary.specs.dimensions.split(' ')[0]}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right Column: Editorial Analysis & Shop CTA */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="lg:col-span-7 flex flex-col items-start"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-sage-800 bg-sage-100 border border-sage-300 mb-3">
+            <span>{primaryDiary.collection}</span>
+          </div>
+
+          <h2 className="font-editorial text-3xl sm:text-4xl md:text-5xl text-cream-900 font-normal leading-tight mb-3">
+            {primaryDiary.name}
+          </h2>
+
+          <p className="text-base sm:text-lg text-sage-800 italic font-serif mb-4">
+            "{primaryDiary.tagline}"
+          </p>
+
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed mb-6">
+            {primaryDiary.description}
+          </p>
+
+          {/* Explanation Box */}
+          <div className="w-full p-4 sm:p-5 rounded-2xl bg-white/80 border border-cream-300 shadow-soft-sm mb-6">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-700 flex items-center gap-1.5 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-sage-600" />
+              <span>Why This Matches Your Mind</span>
+            </h4>
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              {primaryDiary.whyThisMatches}
+            </p>
+          </div>
+
+          {/* Primary CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedProductForModal(primaryDiary)}
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-sage-700 hover:bg-sage-800 text-white font-medium text-base shadow-soft-md hover:shadow-soft-hover transition-all focus:outline-none focus-visible:ring-3 focus-visible:ring-sage-500"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Shop Now</span>
+            </motion.button>
+
+            <button
+              onClick={() => setSelectedProductForModal(primaryDiary)}
+              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-white hover:bg-cream-100 text-cream-900 font-medium text-sm border border-cream-300 transition-colors shadow-soft-sm focus:outline-none"
+            >
+              <Eye className="w-4 h-4 text-stone-500" />
+              <span>View Full Specifications</span>
+            </button>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Deep-Dive Harmony Grid: User Selections Breakdown */}
+      <div className="mb-16">
+        <div className="text-center max-w-xl mx-auto mb-8">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-sage-800 font-semibold">
+            Ritual Harmony Breakdown
+          </span>
+          <h3 className="font-editorial text-2xl sm:text-3xl text-cream-900 font-medium mt-1">
+            How Your Answers Shaped This Journal
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Mood Card */}
+          <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
+                <span>01 • Mood</span>
+                <IconHelper name={userSelections.mood.iconName} className="w-4 h-4 text-sage-600" />
+              </div>
+              <h4 className="font-semibold text-cream-900 text-sm mb-1">
+                {userSelections.mood.label}
+              </h4>
+              <p className="text-xs text-stone-500 leading-relaxed mb-3">
+                {userSelections.mood.subtitle}
+              </p>
+            </div>
+            <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
+              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
+              {matchReasons.moodInsight}
+            </div>
+          </div>
+
+          {/* Purpose Card */}
+          <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
+                <span>02 • Purpose</span>
+                <IconHelper name={userSelections.purpose.iconName} className="w-4 h-4 text-sage-600" />
+              </div>
+              <h4 className="font-semibold text-cream-900 text-sm mb-1">
+                {userSelections.purpose.label}
+              </h4>
+              <p className="text-xs text-stone-500 leading-relaxed mb-3">
+                {userSelections.purpose.subtitle}
+              </p>
+            </div>
+            <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
+              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
+              {matchReasons.purposeInsight}
+            </div>
+          </div>
+
+          {/* Aesthetic Card */}
+          <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
+                <span>03 • Aesthetic</span>
+                <IconHelper name={userSelections.aesthetic.iconName} className="w-4 h-4 text-sage-600" />
+              </div>
+              <h4 className="font-semibold text-cream-900 text-sm mb-1">
+                {userSelections.aesthetic.label}
+              </h4>
+              <p className="text-xs text-stone-500 leading-relaxed mb-3">
+                {userSelections.aesthetic.subtitle}
+              </p>
+            </div>
+            <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
+              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
+              {matchReasons.aestheticInsight}
+            </div>
+          </div>
+
+          {/* Palette Card */}
+          <div className="p-5 rounded-2xl bg-white/70 border border-cream-300 shadow-soft-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs text-stone-400 font-mono uppercase mb-2">
+                <span>04 • Palette</span>
+                <span
+                  className="w-4 h-4 rounded-full border border-black/10 inline-block"
+                  style={{ backgroundColor: userSelections.palette.colorSwatch?.primary || '#729772' }}
+                />
+              </div>
+              <h4 className="font-semibold text-cream-900 text-sm mb-1">
+                {userSelections.palette.label}
+              </h4>
+              <p className="text-xs text-stone-500 leading-relaxed mb-3">
+                {userSelections.palette.subtitle}
+              </p>
+            </div>
+            <div className="pt-3 border-t border-cream-200 text-xs text-sage-800 bg-sage-50/60 p-2.5 rounded-xl border border-sage-100">
+              <span className="font-semibold block text-[10px] uppercase font-mono text-sage-700">Diary Alignment</span>
+              {matchReasons.paletteInsight}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Alternative Companion Match (Secondary recommendation) */}
+      {secondaryDiary && secondaryDiary.id !== primaryDiary.id && (
+        <div className="p-6 sm:p-8 rounded-3xl bg-white/60 border border-cream-300 shadow-soft-md">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="shrink-0 flex items-center justify-center">
+                <DiaryIllustration product={secondaryDiary} size="xs" />
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">
+                  Alternative Companion (89% Affinity)
+                </span>
+                <h4 className="font-editorial text-2xl text-cream-900 font-medium">
+                  {secondaryDiary.name}
+                </h4>
+                <p className="text-xs text-stone-600 max-w-md mt-1">
+                  {secondaryDiary.tagline}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedProductForModal(secondaryDiary)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-cream-100 hover:bg-cream-200 border border-cream-300 text-xs font-semibold text-cream-900 transition-colors"
+            >
+              <span>Explore This Journal</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Restart Prompt */}
+      <div className="mt-12 text-center">
+        <button
+          onClick={onRestart}
+          className="inline-flex items-center gap-2 text-xs font-medium text-stone-500 hover:text-cream-900 transition-colors py-2 px-4 rounded-full hover:bg-cream-200"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Want to explore a different mood or purpose? Restart Quiz</span>
+        </button>
+      </div>
+
+      {/* Product Detail Modal */}
+      {selectedProductForModal && (
+        <ProductDetailModal
+          product={selectedProductForModal}
+          isOpen={!!selectedProductForModal}
+          onClose={() => setSelectedProductForModal(null)}
+        />
+      )}
+    </div>
+  );
+};
