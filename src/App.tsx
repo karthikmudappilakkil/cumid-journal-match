@@ -64,6 +64,26 @@ export const App: React.FC = () => {
     }
   };
 
+  // Skip current question without choosing an answer
+  const handleSkip = () => {
+    if (currentStep < totalQuestions) {
+      setCurrentStep((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Reached the end with partial/incomplete answers: calculate recommendation!
+      setCurrentStep(5);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const result = calculateRecommendation(answers);
+      setRecommendation(result);
+
+      setTimeout(() => {
+        setCurrentStep(6);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 1300);
+    }
+  };
+
   // Select an option for the current question
   const handleSelectOption = (categoryId: QuestionCategory, optionId: string) => {
     const updatedAnswers = {
@@ -178,9 +198,17 @@ export const App: React.FC = () => {
                 })}
               </div>
 
-              {/* Keyboard Accessibility Hint */}
-              <div className="text-center mt-8 text-xs text-stone-400 font-mono">
-                Select an option to advance • Press Enter or Space to choose
+              {/* Keyboard Accessibility & Skip Action */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mt-8 text-xs text-stone-500 font-mono">
+                <span>Select an option to advance • Press Enter or Space to choose</span>
+                <span className="hidden sm:inline text-stone-300">•</span>
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="text-stone-500 hover:text-sage-800 underline underline-offset-4 transition-colors font-sans py-1 px-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
+                >
+                  Skip this question
+                </button>
               </div>
             </motion.div>
           )}

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Bookmark, Copy, CheckCircle2, Info } from 'lucide-react';
 import { DiaryProduct } from '../types';
 import { DiaryIllustration } from './DiaryIllustration';
+import { copyToClipboard } from '../utils/clipboard';
 
 interface ProductDetailModalProps {
   product: DiaryProduct;
@@ -38,9 +39,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     }, 3500);
   };
 
-  const handleCopySpecs = () => {
+  const handleCopySpecs = async () => {
     const text = `CUMID Diary Concept: ${product.name}\nCollection: ${product.collection}\nPaper Benchmark: ${product.specs.paperWeight}\nFormat: ${product.specs.pages} Pages (${product.specs.rulingType})\nBinding: ${product.specs.binding}\nCover Texture: ${product.specs.coverMaterial}\nNotice: Explore this CUMID diary concept. Product specifications, materials and availability are subject to final development.`;
-    navigator.clipboard.writeText(text);
+    await copyToClipboard(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };

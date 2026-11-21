@@ -15,6 +15,7 @@ import { RecommendationResult, DiaryProduct } from '../types';
 import { DiaryIllustration } from './DiaryIllustration';
 import { ProductDetailModal } from './ProductDetailModal';
 import { IconHelper } from './IconHelper';
+import { copyToClipboard } from '../utils/clipboard';
 
 interface ResultsScreenProps {
   recommendation: RecommendationResult | null;
@@ -101,9 +102,9 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
     }
   }, [matchScore]);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const text = `My CUMID Diary Match: ${primaryDiary.name} (${matchScore}% Genuine Match)! Concept recommendation from CUMID Diary Finder.`;
-    navigator.clipboard.writeText(text);
+    await copyToClipboard(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -420,7 +421,15 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               </div>
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">
-                  Alternative Companion • {secondaryMatchScore}% Match
+                  Alternative Companion • {secondaryMatchScore}% Match (
+                  {secondaryMatchScore >= 70
+                    ? 'Strong Match'
+                    : secondaryMatchScore >= 35
+                    ? 'Moderate Match'
+                    : secondaryMatchScore > 0
+                    ? 'Weak Match'
+                    : 'Exploratory Match'}
+                  )
                 </span>
                 <h4 className="font-editorial text-2xl text-cream-900 font-medium">
                   {secondaryDiary.name}
